@@ -72,7 +72,7 @@ int	read_line_per_line(int fd, cf_map *configs, t_dyp *dynamic)
 		bfr[configs->cols] = '\0';
 		translate_map(bfr, configs, dynamic);
 		solver_dp(configs, dynamic, i);
-		swap_pointer(dynamic->curr_row, dynamic->prev_row);
+		swap_pointer(&dynamic->curr_row, &dynamic->prev_row);
 		i++;
 	}
 	free(bfr);
