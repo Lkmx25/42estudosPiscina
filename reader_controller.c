@@ -8,8 +8,8 @@ int	read_and_memory(char *path, cf_map *configs, t_dyp *dynamic)
 	fd = open(path, O_RDONLY);
 	if (!first_reader(fd, configs, dynamic))
 		return (0);
-	// if (!read_line_per_line(fd, configs, dynamic))
-	// 	return (0);
+	if (!read_line_per_line(fd, configs, dynamic))
+		return (0);
 	close(fd);
 	return (1);
 }
@@ -23,7 +23,6 @@ int	first_reader(int fd, cf_map *configs, t_dyp *dynamic)
 
 	is_first = 0;
 	i = 0;
-	dynamic = NULL;
 	
 	while (read(fd, &c, 1) > 0)
 	{
@@ -59,14 +58,12 @@ int	read_line_per_line(int fd, cf_map *configs, t_dyp *dynamic)
 	char	*bfr;
 
 	bfr = malloc(sizeof(char) * (configs->cols + 1));
-	printf("%lu\n", sizeof(bfr));
 	if (!bfr)
 		return (0);
 	i = 1;
 	while (i < configs->lines - 1)
 	{
 		bytes_read = read(fd, bfr, configs->cols + 1);
-		// printf("%d\n", bytes_read);
 		if ((bytes_read - 1) != configs->cols && bfr[configs->cols] != '\n')
 		{
 			free(bfr);
