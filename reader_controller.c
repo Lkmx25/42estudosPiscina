@@ -14,41 +14,35 @@ int	read_and_memory(char *path, cf_map *configs, t_dyp *dynamic)
 	return (1);
 }
 
+static int	process_first_line(int fd, cf_map *cfg, t_dyp *dyp)
+{
+	char	bfr[4096];
+	char	c;
+	int		i;
+
+	i = 0;
+	while (read(fd, &c, 1) > 0 && c != '\n' && i < 4095)
+		bfr[i++] = c;
+	bfr[i] = '\0';
+	if (!first_line_dp(bfr, cfg, dyp))
+		return (0);
+	return (1);
+}
+
 int	first_reader(int fd, cf_map *configs, t_dyp *dynamic)
 {
 	char	bfr[4096];
 	char	c;
 	int		i;
-	int		is_first;
 
-	is_first = 0;
 	i = 0;
-	
-	while (read(fd, &c, 1) > 0)
-	{
-		printf("%c", c);
-		
-		if (c != '\n' && i < 4095)
-			bfr[i++] = c;
-		if (c == '\n' && is_first == 0)
-		{
-			bfr[i] = '\0';
-			if (!validate_header(bfr))
-				return (0);
-			ft_parse_header(configs, bfr);
-			is_first = 1;
-			i = 0;
-			continue;
-		}
-		if (c == '\n' && is_first == 1)
-		{
-			bfr[i] = '\0';
-			if (!first_line_dp(bfr, configs, dynamic))
-				return (0);
-			break ;
-		}
-	}
-	return (1);
+	while (read(fd, &c, 1) > 0 && c != '\n' && i < 4095)
+		bfr[i++] = c;
+	bfr[i] = '\0';
+	if (!validate_header(bfr))
+		return (0);
+	ft_parse_header(configs, bfr);
+	return (process_first_line(fd, configs, dynamic));
 }
 
 int	read_line_per_line(int fd, cf_map *configs, t_dyp *dynamic)
@@ -61,16 +55,13 @@ int	read_line_per_line(int fd, cf_map *configs, t_dyp *dynamic)
 	if (!bfr)
 		return (0);
 	i = 1;
-	while (i < configs->lines - 1)
+	while (i < configs->lines)
 	{
 		bytes_read = read(fd, bfr, configs->cols + 1);
-		if ((bytes_read - 1) != configs->cols && bfr[configs->cols] != '\n')
-		{
-			free(bfr);
-			return (0);
-		}
+		if (bytes_read <= 0)
+			break ;
 		bfr[configs->cols] = '\0';
-		translate_map(bfr, configs, dynamic);
+		translate_map(bfr, configs, dynamic, i);
 		solver_dp(configs, dynamic, i);
 		swap_pointer(&dynamic->curr_row, &dynamic->prev_row);
 		i++;
@@ -79,7 +70,7 @@ int	read_line_per_line(int fd, cf_map *configs, t_dyp *dynamic)
 	return (1);
 }
 
-void	translate_map(char *line, cf_map *configs, t_dyp *dynamic)
+void	translate_map(char *line, cf_map *configs, t_dyp *dynamic, int y)
 {
 	int	i;
 
@@ -88,40 +79,37 @@ void	translate_map(char *line, cf_map *configs, t_dyp *dynamic)
 	{
 		if (line[i] == configs->empty)
 			dynamic->curr_row[i] = 1;
-		if (line[i] == configs->obst)
+		else if (line[i] == configs->obst)
 			dynamic->curr_row[i] = 0;
+		if (dynamic->curr_row[i] > dynamic->v_max)
+		{
+			dynamic->v_max = dynamic->curr_row[i];
+			dynamic->x_max = i;
+			dynamic->y_max = y;
+		}
 		i++;
-	}
-	if (dynamic->curr_row[i] > dynamic->v_max)
-	{
-	    dynamic->v_max = dynamic->curr_row[i];
-	    dynamic->x_max = i;
-	    dynamic->y_max = lines;
 	}
 }
 
-void	solver_dp(cf_map *configs, t_dyp *dynamic, int lines)
+void	solver_dp(cf_map *configs, t_dyp *dynamic, int y)
 {
-	int	diagonal;
-	int	left;
-	int	top;
 	int	i;
+	int	min;
 
 	i = 1;
 	while (i < configs->cols)
 	{
-		diagonal = dynamic->prev_row[i - 1];
-		left = dynamic->curr_row[i - 1];
-		top = dynamic->prev_row[i];
 		if (dynamic->curr_row[i] != 0)
 		{
-			dynamic->curr_row[i] = 1 + ft_min(diagonal, left, top);
+			min = ft_min(dynamic->prev_row[i - 1],
+					dynamic->curr_row[i - 1], dynamic->prev_row[i]);
+			dynamic->curr_row[i] = 1 + min;
 		}
 		if (dynamic->curr_row[i] > dynamic->v_max)
 		{
 			dynamic->v_max = dynamic->curr_row[i];
 			dynamic->x_max = i;
-			dynamic->y_max = lines;
+			dynamic->y_max = y;
 		}
 		i++;
 	}
