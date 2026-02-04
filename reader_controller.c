@@ -92,6 +92,12 @@ void	translate_map(char *line, cf_map *configs, t_dyp *dynamic)
 			dynamic->curr_row[i] = 0;
 		i++;
 	}
+	if (dynamic->curr_row[i] > dynamic->v_max)
+	{
+	    dynamic->v_max = dynamic->curr_row[i];
+	    dynamic->x_max = i;
+	    dynamic->y_max = lines;
+	}
 }
 
 void	solver_dp(cf_map *configs, t_dyp *dynamic, int lines)
