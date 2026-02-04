@@ -1,3 +1,5 @@
+#include "rushbsq.h"
+
 int	first_line_dp(char *line, cf_map *config, t_dyp *dynamic)
 {
 	if (!first_line_validation(config, line))
