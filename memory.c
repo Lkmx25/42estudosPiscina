@@ -19,6 +19,6 @@ int	first_line_dp(char *line, cf_map *config, t_dyp *dynamic)
 		return (0);
 	}
 	translate_map(line, config, dynamic);
-	swap_pointer(dynamic->curr_row, dynamic->prev_row);
+	swap_pointer(&dynamic->curr_row, &dynamic->prev_row);
 	return (1);
 }
