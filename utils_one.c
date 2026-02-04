@@ -32,22 +32,22 @@ int	compare_char(char a, char b, char c)
 	return (1);
 }
 
-void	swap_pointer(int *curr, int *prev)
+void	swap_pointer(int **curr, int **prev)
 {
 	int	*temp;
 
-	temp = prev;
-	prev = curr;
-	curr = temp;
+	temp = *prev;
+	*prev = *curr;
+	*curr = temp;
 }
 
 int	ft_min(int a, int b, int c)
 {
-	if (a < b && a < c)
-		return (a);
-	if (b < a && b < c)
-		return (b);
-	if (c < a && c < b)
-		return (c);
-	return(0);
+	int min;
+	min = a;
+	if(b < min)
+		min = b;
+	if(c < min)
+		min = c;
+	return(min);
 }
