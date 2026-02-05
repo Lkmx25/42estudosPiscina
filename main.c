@@ -1,34 +1,45 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lkenji-s <lkenji-s@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/04 20:04:35 by lkenji-s          #+#    #+#             */
+/*   Updated: 2026/02/04 20:08:52 by lkenji-s         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "rushbsq.h"
 
-static int	alloc_struct(cf_map **configs, t_dyp **dynamic, int mode)
+static int	alloc_struct(t_map **configs, t_dyp **dynamic)
 {
-	if (mode == 1)
+	*configs = malloc(sizeof(t_map));
+	if (!*configs)
+		return (0);
+	*dynamic = malloc(sizeof(t_dyp));
+	if (!*dynamic)
 	{
-		*configs = malloc(sizeof(cf_map));
-		if (!*configs)
-			return (0);
-		*dynamic = malloc(sizeof(t_dyp));
-		if (!*dynamic)
-		{
-			free(*configs);
-			return (0);
-		}
-	}
-	else if (mode == 0)
-	{
-		if (*dynamic)
-		{
-			free((*dynamic)->curr_row);
-			free((*dynamic)->prev_row);
-			free(*dynamic);
-		}
-		if (*configs)
-			free(*configs);
+		free(*configs);
+		return (0);
 	}
 	return (1);
 }
 
-static void	set_struct(cf_map *configs, t_dyp *dynamic)
+static int	free_struct(t_map **configs, t_dyp **dynamic)
+{
+	if (*dynamic)
+	{
+		free((*dynamic)->curr_row);
+		free((*dynamic)->prev_row);
+		free(*dynamic);
+	}
+	if (*configs)
+		free(*configs);
+	return (1);
+}
+
+void	set_struct(t_map *configs, t_dyp *dynamic)
 {
 	configs->lines = 0;
 	configs->cols = 0;
@@ -38,58 +49,23 @@ static void	set_struct(cf_map *configs, t_dyp *dynamic)
 	dynamic->v_max = 0;
 	dynamic->x_max = 0;
 	dynamic->y_max = 0;
+	dynamic->x_start = 0;
+	dynamic->y_start = 0;
 	dynamic->curr_row = NULL;
 	dynamic->prev_row = NULL;
-}
-
-static void	process_map(char *path, cf_map *configs, t_dyp *dynamic)
-{
-	set_struct(configs, dynamic);
-	if (read_and_memory(path, configs, dynamic))
-	{
-
-		// print_res(path, configs, dynamic);
-	}
-	else
-		write(2, "map error\n", 10);
-	if (dynamic->curr_row)
-		free(dynamic->curr_row);
-	if (dynamic->prev_row)
-		free(dynamic->prev_row);
-	dynamic->curr_row = NULL;
-	dynamic->prev_row = NULL;
-}
-
-static void	set_args(int ac, char **av, cf_map *configs, t_dyp *dynamic)
-{
-	int	i;
-
-	if (ac == 1)
-	{
-		// handle_stdin(".temp"); 
-		// process_map(".temp", configs, dynamic);
-	}
-	else
-	{
-		i = 1;
-		while (i < ac)
-		{
-			process_map(av[i], configs, dynamic);
-			i++;
-		}
-	}
+	dynamic->grid = NULL;
 }
 
 int	main(int ac, char **av)
 {
 	t_dyp	*dynamic;
-	cf_map	*configs;
+	t_map	*configs;
 
 	dynamic = NULL;
 	configs = NULL;
-	if (!alloc_struct(&configs, &dynamic, 1))
+	if (!alloc_struct(&configs, &dynamic))
 		return (0);
 	set_args(ac, av, configs, dynamic);
-	alloc_struct(&configs, &dynamic, 0);
+	free_struct(&configs, &dynamic);
 	return (0);
 }
