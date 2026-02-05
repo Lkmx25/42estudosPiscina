@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils_one.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: lkenji-s <lkenji-s@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/02/04 20:04:27 by lkenji-s          #+#    #+#             */
+/*   Updated: 2026/02/04 20:04:28 by lkenji-s         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "rushbsq.h"
 
@@ -39,15 +50,4 @@ void	swap_pointer(int **curr, int **prev)
 	temp = *prev;
 	*prev = *curr;
 	*curr = temp;
-}
-
-int	ft_min(int a, int b, int c)
-{
-	int min;
-	min = a;
-	if(b < min)
-		min = b;
-	if(c < min)
-		min = c;
-	return(min);
 }
